@@ -83,6 +83,7 @@ function applyFaceBlur(
 
 /**
  * Apply Gaussian blur using Canvas filter
+ * Blur scales proportionally with face size for consistent privacy protection
  */
 function applyGaussianBlur(
 	ctx: CanvasRenderingContext2D,
@@ -93,8 +94,16 @@ function applyGaussianBlur(
 	h: number,
 	intensity: number
 ): void {
-	// Convert intensity (0-100) to blur amount (0-30px)
-	const blurAmount = (intensity / 100) * 30;
+	// Calculate blur based on face width: 8-20% of face size
+	// This ensures blur scales with resolution (larger faces = stronger blur)
+	const minBlurPercent = 0.08; // 8% at intensity 0
+	const maxBlurPercent = 0.20; // 20% at intensity 100
+	const blurPercent = minBlurPercent + ((maxBlurPercent - minBlurPercent) * (intensity / 100));
+	const faceBasedBlur = w * blurPercent;
+
+	// Clamp between 10px minimum and 200px maximum
+	const blurAmount = Math.max(10, Math.min(faceBasedBlur, 200));
+
 	ctx.filter = `blur(${blurAmount}px)`;
 	ctx.drawImage(image, x, y, w, h, 0, 0, w, h);
 	ctx.filter = 'none';
@@ -102,6 +111,7 @@ function applyGaussianBlur(
 
 /**
  * Apply pixelate effect by downscaling and upscaling
+ * Pixel size scales proportionally with face size
  */
 function applyPixelate(
 	ctx: CanvasRenderingContext2D,
@@ -112,8 +122,15 @@ function applyPixelate(
 	h: number,
 	intensity: number
 ): void {
-	// Calculate pixel size (higher intensity = coarser pixels)
-	const pixelSize = Math.max(1, Math.floor((intensity / 100) * 20));
+	// Calculate pixel size based on face width: 2-15% of face size
+	// This ensures pixelation scales with resolution
+	const minPixelPercent = 0.02; // 2% at intensity 0
+	const maxPixelPercent = 0.15; // 15% at intensity 100
+	const pixelPercent = minPixelPercent + ((maxPixelPercent - minPixelPercent) * (intensity / 100));
+	const faceBasedPixelSize = w * pixelPercent;
+
+	// Clamp between 2px minimum and 100px maximum
+	const pixelSize = Math.max(2, Math.min(Math.floor(faceBasedPixelSize), 100));
 
 	const smallW = Math.ceil(w / pixelSize);
 	const smallH = Math.ceil(h / pixelSize);
@@ -130,6 +147,7 @@ function applyPixelate(
 
 /**
  * Apply heavy blur with brightness adjustment
+ * Maximum obscuring effect with proportional scaling
  */
 function applyHeavyBlur(
 	ctx: CanvasRenderingContext2D,
@@ -140,8 +158,16 @@ function applyHeavyBlur(
 	h: number,
 	intensity: number
 ): void {
-	// Stronger blur with darkening effect
-	const blurAmount = (intensity / 100) * 40;
+	// Calculate heavy blur based on face width: 10-25% of face size
+	// Stronger than gaussian for maximum privacy protection
+	const minBlurPercent = 0.10; // 10% at intensity 0
+	const maxBlurPercent = 0.25; // 25% at intensity 100
+	const blurPercent = minBlurPercent + ((maxBlurPercent - minBlurPercent) * (intensity / 100));
+	const faceBasedBlur = w * blurPercent;
+
+	// Clamp between 15px minimum and 250px maximum
+	const blurAmount = Math.max(15, Math.min(faceBasedBlur, 250));
+
 	ctx.filter = `blur(${blurAmount}px) brightness(0.8)`;
 	ctx.drawImage(image, x, y, w, h, 0, 0, w, h);
 	ctx.filter = 'none';
