@@ -29,7 +29,7 @@ export const blurIntensity = writable<number>(DEFAULT_BLUR_INTENSITY);
 /**
  * Current blur style
  */
-export const blurStyle = writable<BlurStyle>('gaussian');
+export const blurStyle = writable<BlurStyle>('pixelate');
 
 /**
  * Face detection confidence threshold (0-1)
@@ -54,7 +54,7 @@ export function resetAppState(): void {
 	detectedFaces.set([]);
 	blurredFaceIds.set(new Set());
 	blurIntensity.set(DEFAULT_BLUR_INTENSITY);
-	blurStyle.set('gaussian');
+	blurStyle.set('pixelate');
 	detectionConfidence.set(MIN_DETECTION_CONFIDENCE);
 	isProcessing.set(false);
 	error.set(null);

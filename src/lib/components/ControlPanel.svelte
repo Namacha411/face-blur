@@ -47,13 +47,18 @@
 			<div class="grid grid-cols-3 gap-2">
 				{#each BLUR_STYLES as style}
 					<button
-						onclick={() => blurStyle.set(style.value)}
+						onclick={() => style.value === 'pixelate' && blurStyle.set(style.value)}
 						class="px-4 py-2 rounded-md font-medium transition-colors {$blurStyle === style.value
 							? 'bg-blue-500 text-white'
-							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
-						disabled={$isProcessing}
+							: style.value === 'pixelate'
+							? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+							: 'bg-gray-50 text-gray-400 cursor-not-allowed'}"
+						disabled={$isProcessing || style.value !== 'pixelate'}
 					>
 						{style.label}
+						{#if style.value !== 'pixelate'}
+							<span class="block text-xs mt-0.5">Coming Soon</span>
+						{/if}
 					</button>
 				{/each}
 			</div>

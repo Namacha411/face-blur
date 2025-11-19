@@ -37,7 +37,7 @@ Visit the live app: [Face Blur App](https://your-deployment-url.vercel.app)
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/face-blur-app.git
+git clone https://github.com/Namacha411/face-blur.git
 cd face-blur-app
 
 # Install dependencies
