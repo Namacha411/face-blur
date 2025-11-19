@@ -43,6 +43,8 @@ npm run test             # Run all tests
 - **Styling**: Tailwind CSS v4 (using Vite plugin)
 - **Face Detection**: MediaPipe Face Detection (@mediapipe/tasks-vision)
 - **Image Processing**: Canvas API
+- **PWA**: @vite-pwa/sveltekit (offline support and installability)
+- **Deployment**: Vercel (@sveltejs/adapter-vercel)
 - **Testing**: Vitest (unit/component) + Playwright (E2E)
 
 ### Project Structure
@@ -50,11 +52,14 @@ npm run test             # Run all tests
 src/
 ├── lib/
 │   ├── components/        # Svelte components
-│   │   ├── ImageUploader.svelte    # File upload UI
+│   │   ├── ImageUploader.svelte    # File upload UI (English)
 │   │   ├── FaceCanvas.svelte       # Main canvas with face detection
-│   │   ├── ControlPanel.svelte     # Blur controls (style, intensity)
+│   │   ├── ControlPanel.svelte     # Blur controls (English)
 │   │   ├── LoadingSpinner.svelte   # Loading state
-│   │   └── ErrorMessage.svelte     # Error display
+│   │   ├── ErrorMessage.svelte     # Error display
+│   │   └── ja/                     # Japanese component translations
+│   │       ├── ImageUploader.svelte
+│   │       └── ControlPanel.svelte
 │   ├── utils/
 │   │   ├── faceDetection.ts       # MediaPipe integration
 │   │   ├── imageProcessing.ts     # Canvas blur operations
@@ -65,8 +70,14 @@ src/
 │   └── types/
 │       └── index.ts               # TypeScript type definitions
 ├── routes/
-│   ├── +page.svelte               # Main page component
-│   └── +layout.svelte             # App layout
+│   ├── +page.svelte               # Main page (English)
+│   ├── +layout.svelte             # App layout
+│   ├── info/
+│   │   └── +page.svelte           # Info/about page (English)
+│   └── ja/                        # Japanese routes
+│       ├── +page.svelte           # Main page (Japanese)
+│       └── info/
+│           └── +page.svelte       # Info/about page (Japanese)
 └── app.html                       # HTML template
 ```
 
@@ -77,7 +88,26 @@ The project uses Vitest with two test configurations:
 
 E2E tests are in the `e2e/` directory and run with Playwright against the built app on port 4173.
 
+### Routes
+The app has the following route structure:
+- **Main App** (`/` and `/ja`): Face blur application interface
+- **Info Page** (`/info` and `/ja/info`): About page with app information, privacy policy, and usage instructions
+
+Each route is available in both English and Japanese versions.
+
 ## Core Concepts
+
+### Internationalization (i18n)
+The app supports multiple languages through route-based localization:
+- **English**: Default routes (`/`, `/info`)
+- **Japanese**: `/ja/*` routes (`/ja`, `/ja/info`)
+
+Localized components are organized in parallel structures:
+- UI text translations are maintained in component duplicates under `src/lib/components/ja/`
+- Each language has its own route structure under `src/routes/` and `src/routes/ja/`
+- Users can switch languages via links in the UI
+
+No i18n library is used - translations are handled through component-level duplication for simplicity and performance.
 
 ### State Management
 Uses Svelte writable stores in `src/lib/stores/appState.ts`:
@@ -109,6 +139,22 @@ Each face gets a 1.2x bounding box padding for natural blur boundaries.
 - Uses Web Share API for image saving on iOS Safari
 - Falls back to `<a download>` on desktop browsers
 - Touch events properly scaled for canvas coordinate mapping
+
+### PWA Configuration
+The app is configured as a Progressive Web App using `@vite-pwa/sveltekit`:
+- **Offline Support**: Service worker caches assets for offline use
+- **Install Prompt**: Users can install the app to their home screen
+- **Manifest**: Web app manifest defines app metadata and icons
+- **Update Strategy**: Automatic update checks when online
+
+PWA configuration is in `vite.config.ts` with the VitePWA plugin settings.
+
+### Deployment
+The app is configured for deployment on Vercel:
+- **Adapter**: Uses `@sveltejs/adapter-vercel` for optimized Vercel deployment
+- **Static Assets**: All assets served via Vercel's CDN
+- **Environment**: Production builds automatically optimize for performance
+- **Zero Config**: Deploy with `vercel` command or via GitHub integration
 
 ## Development Notes
 
@@ -146,3 +192,14 @@ Refer to this document for:
 - MediaPipe initialization code
 - iOS file handling patterns
 - Complete type interfaces
+
+## Caution
+
+### playwright
+
+Do NOT use playwright - Take a screenshot
+The following error occurs, causing the system to freeze.
+```sh
+ [Image]
+API Error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"messages.13.content.4.image.source.base64.data: Image does not match the provided media type image/jpeg"},"request_id":"req_011CVHYE4nuP9hqfsVRdbL6d"}
+```

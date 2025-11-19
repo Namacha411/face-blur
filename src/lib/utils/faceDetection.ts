@@ -11,12 +11,14 @@ let faceDetector: FaceDetector | null = null;
 /**
  * Initialize MediaPipe Face Detector (singleton pattern)
  * Loads WASM files from CDN and creates detector instance
+ * @param minConfidence - Minimum confidence threshold (0-1)
  */
-export async function initializeFaceDetector(): Promise<FaceDetector> {
-	if (faceDetector) return faceDetector;
-
+export async function initializeFaceDetector(
+	minConfidence: number = MIN_DETECTION_CONFIDENCE
+): Promise<FaceDetector> {
+	// Always recreate detector if confidence changes
 	const vision = await FilesetResolver.forVisionTasks(
-		'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+		'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm'
 	);
 
 	faceDetector = await FaceDetector.createFromOptions(vision, {
@@ -26,7 +28,7 @@ export async function initializeFaceDetector(): Promise<FaceDetector> {
 			delegate: 'GPU'
 		},
 		runningMode: 'IMAGE',
-		minDetectionConfidence: MIN_DETECTION_CONFIDENCE
+		minDetectionConfidence: minConfidence
 	});
 
 	return faceDetector;
@@ -35,10 +37,14 @@ export async function initializeFaceDetector(): Promise<FaceDetector> {
 /**
  * Detect faces in an image
  * @param image - HTMLImageElement to detect faces in
+ * @param minConfidence - Minimum confidence threshold (0-1)
  * @returns Array of detected faces with bounding boxes
  */
-export async function detectFaces(image: HTMLImageElement): Promise<DetectedFace[]> {
-	const detector = await initializeFaceDetector();
+export async function detectFaces(
+	image: HTMLImageElement,
+	minConfidence: number = MIN_DETECTION_CONFIDENCE
+): Promise<DetectedFace[]> {
+	const detector = await initializeFaceDetector(minConfidence);
 	const detections = detector.detect(image);
 
 	return detections.detections.map((detection, index) => ({

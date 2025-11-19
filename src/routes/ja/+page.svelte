@@ -1,7 +1,7 @@
 <script lang="ts">
-	import ImageUploader from '$lib/components/ImageUploader.svelte';
+	import ImageUploader from '$lib/components/ja/ImageUploader.svelte';
 	import FaceCanvas from '$lib/components/FaceCanvas.svelte';
-	import ControlPanel from '$lib/components/ControlPanel.svelte';
+	import ControlPanel from '$lib/components/ja/ControlPanel.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import { detectFaces } from '$lib/utils/faceDetection';
 	import {
@@ -21,7 +21,7 @@
 			const faces = await detectFaces($uploadedImage, $detectionConfidence);
 
 			if (faces.length === 0) {
-				alert('No faces detected with current confidence threshold. Try lowering it.');
+				alert('現在の信頼度閾値では顔を検出できませんでした。閾値を下げてみてください。');
 				detectedFaces.set([]);
 				blurredFaceIds.set(new Set());
 			} else {
@@ -39,16 +39,16 @@
 <div class="container mx-auto px-4 py-8 max-w-4xl">
 	<!-- Header -->
 	<header class="text-center mb-8">
-		<h1 class="text-4xl font-bold text-gray-800 mb-2">Face Blur App</h1>
+		<h1 class="text-4xl font-bold text-gray-800 mb-2">顔ぼかしアプリ</h1>
 		<p class="text-gray-600">
-			Automatically blur faces in photos. 100% client-side - your images never leave your device.
+			写真内の顔を自動的にぼかします。100%クライアントサイド処理 - 画像はデバイスの外に出ません。
 		</p>
 		<div class="mt-4 space-x-4">
-			<a href="/info" class="text-blue-500 hover:underline font-medium">
-				User Guide & Installation Instructions
+			<a href="/ja/info" class="text-blue-500 hover:underline font-medium">
+				使い方ガイド・インストール方法
 			</a>
 			<span class="text-gray-400">|</span>
-			<a href="/ja" class="text-blue-500 hover:underline">日本語</a>
+			<a href="/" class="text-blue-500 hover:underline">English</a>
 		</div>
 	</header>
 
@@ -57,7 +57,7 @@
 		<!-- Detection Confidence Settings -->
 		<div class="bg-white p-6 rounded-lg shadow-md">
 			<label for="detection-confidence" class="block text-sm font-medium text-gray-700 mb-2">
-				Face Detection Confidence: {Math.round($detectionConfidence * 100)}%
+				顔検出の信頼度: {Math.round($detectionConfidence * 100)}%
 			</label>
 			<input
 				id="detection-confidence"
@@ -70,8 +70,7 @@
 				disabled={$isProcessing}
 			/>
 			<p class="text-xs text-gray-500 mt-2">
-				Lower values detect more faces (but may include false positives). Higher values are more
-				strict.
+				値を下げるとより多くの顔を検出します（誤検出が増える可能性があります）。値を上げると検出が厳密になります。
 			</p>
 			{#if $uploadedImage}
 				<button
@@ -79,7 +78,7 @@
 					class="mt-3 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 					disabled={$isProcessing}
 				>
-					Re-detect Faces with New Confidence
+					新しい信頼度で顔を再検出
 				</button>
 			{/if}
 		</div>
@@ -103,22 +102,21 @@
 		<!-- Instructions (shown when no image uploaded) -->
 		{#if !$uploadedImage && !$isProcessing}
 			<div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-				<h2 class="text-lg font-semibold text-blue-900 mb-3">How to use:</h2>
+				<h2 class="text-lg font-semibold text-blue-900 mb-3">使い方：</h2>
 				<ol class="list-decimal list-inside space-y-2 text-blue-800">
-					<li>Upload an image from your device</li>
-					<li>The app will automatically detect and blur all faces</li>
-					<li>Tap any face to toggle blur on/off</li>
-					<li>Adjust blur style and intensity to your preference</li>
-					<li>Download or share the processed image</li>
+					<li>デバイスから画像をアップロード</li>
+					<li>アプリが自動的に顔を検出してぼかしを適用</li>
+					<li>顔をタップしてぼかしのオン/オフを切り替え</li>
+					<li>ぼかしのスタイルと強度をお好みに調整</li>
+					<li>処理済み画像をダウンロードまたは共有</li>
 				</ol>
 			</div>
 
 			<div class="bg-green-50 border border-green-200 rounded-lg p-6">
-				<h2 class="text-lg font-semibold text-green-900 mb-3">Privacy Guarantee:</h2>
+				<h2 class="text-lg font-semibold text-green-900 mb-3">プライバシー保証：</h2>
 				<p class="text-green-800">
-					All image processing happens directly in your browser using WebAssembly and Canvas API.
-					Your photos are <strong>never uploaded</strong> to any server. This app works completely
-					offline after the initial load.
+					すべての画像処理はWebAssemblyとCanvas APIを使用してブラウザ内で直接行われます。
+					あなたの写真は<strong>サーバーにアップロードされません</strong>。このアプリは初回読み込み後、完全にオフラインで動作します。
 				</p>
 			</div>
 		{/if}
@@ -130,7 +128,7 @@
 					onclick={() => window.location.reload()}
 					class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
 				>
-					Upload Another Image
+					別の画像をアップロード
 				</button>
 			</div>
 		{/if}
@@ -139,17 +137,18 @@
 	<!-- Footer -->
 	<footer class="mt-12 text-center text-sm text-gray-500">
 		<p>
-			Built with <a
+			<a
 				href="https://kit.svelte.dev"
 				class="text-blue-500 hover:underline"
 				target="_blank">SvelteKit</a
 			>
-			and
+			と
 			<a
 				href="https://developers.google.com/mediapipe"
 				class="text-blue-500 hover:underline"
 				target="_blank">MediaPipe</a
 			>
+			で構築
 		</p>
 	</footer>
 </div>

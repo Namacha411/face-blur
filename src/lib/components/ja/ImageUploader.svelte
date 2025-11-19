@@ -9,7 +9,12 @@
 		error,
 		detectionConfidence
 	} from '$lib/stores/appState';
-	import { ERROR_MESSAGES } from '$lib/utils/constants';
+
+	const ERROR_MESSAGES_JA = {
+		INVALID_FILE_TYPE: '無効なファイル形式です。画像ファイルをアップロードしてください。',
+		NO_FACES_DETECTED: '画像から顔を検出できませんでした。別の画像をお試しください。',
+		PROCESSING_FAILED: '画像の処理に失敗しました。もう一度お試しください。'
+	};
 
 	async function handleFileSelect(event: Event) {
 		const input = event.target as HTMLInputElement;
@@ -19,7 +24,7 @@
 
 		// Validate file type
 		if (!file.type.startsWith('image/')) {
-			error.set(ERROR_MESSAGES.INVALID_FILE_TYPE);
+			error.set(ERROR_MESSAGES_JA.INVALID_FILE_TYPE);
 			return;
 		}
 
@@ -36,7 +41,7 @@
 
 			if (faces.length === 0) {
 				// Use browser alert for "No faces detected"
-				alert(ERROR_MESSAGES.NO_FACES_DETECTED);
+				alert(ERROR_MESSAGES_JA.NO_FACES_DETECTED);
 				detectedFaces.set([]);
 				blurredFaceIds.set(new Set());
 			} else {
@@ -46,7 +51,7 @@
 			}
 		} catch (err) {
 			console.error('Error processing image:', err);
-			error.set(ERROR_MESSAGES.PROCESSING_FAILED);
+			error.set(ERROR_MESSAGES_JA.PROCESSING_FAILED);
 		} finally {
 			isProcessing.set(false);
 		}
@@ -73,9 +78,9 @@
 				></path>
 			</svg>
 			<p class="mb-2 text-sm text-gray-500">
-				<span class="font-semibold">Click to upload</span> or drag and drop
+				<span class="font-semibold">クリックしてアップロード</span>またはドラッグ＆ドロップ
 			</p>
-			<p class="text-xs text-gray-500">PNG, JPG, GIF up to 4096px</p>
+			<p class="text-xs text-gray-500">PNG、JPG、GIF（最大4096px）</p>
 		</div>
 		<input
 			type="file"

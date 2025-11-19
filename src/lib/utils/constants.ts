@@ -22,12 +22,12 @@ export const BLUR_STYLES: Array<{ value: BlurStyle; label: string }> = [
 /**
  * Default blur intensity (0-100)
  */
-export const DEFAULT_BLUR_INTENSITY = 70;
+export const DEFAULT_BLUR_INTENSITY = 50;
 
 /**
  * Minimum confidence score for face detection (0-1)
  */
-export const MIN_DETECTION_CONFIDENCE = 0.5;
+export const MIN_DETECTION_CONFIDENCE = 0.2;
 
 /**
  * Multiplier for face bounding box padding

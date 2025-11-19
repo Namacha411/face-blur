@@ -4,7 +4,7 @@
 
 import { writable } from 'svelte/store';
 import type { DetectedFace, BlurStyle } from '$lib/types';
-import { DEFAULT_BLUR_INTENSITY } from '$lib/utils/constants';
+import { DEFAULT_BLUR_INTENSITY, MIN_DETECTION_CONFIDENCE } from '$lib/utils/constants';
 
 /**
  * Currently uploaded image
@@ -32,6 +32,11 @@ export const blurIntensity = writable<number>(DEFAULT_BLUR_INTENSITY);
 export const blurStyle = writable<BlurStyle>('gaussian');
 
 /**
+ * Face detection confidence threshold (0-1)
+ */
+export const detectionConfidence = writable<number>(MIN_DETECTION_CONFIDENCE);
+
+/**
  * Processing state flag
  */
 export const isProcessing = writable<boolean>(false);
@@ -50,6 +55,7 @@ export function resetAppState(): void {
 	blurredFaceIds.set(new Set());
 	blurIntensity.set(DEFAULT_BLUR_INTENSITY);
 	blurStyle.set('gaussian');
+	detectionConfidence.set(MIN_DETECTION_CONFIDENCE);
 	isProcessing.set(false);
 	error.set(null);
 }
