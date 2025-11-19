@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { blurIntensity, blurStyle, detectedFaces, isProcessing, error } from '$lib/stores/appState';
+	import { blurIntensity, blurStyle, detectedFaces, isProcessing, error, uploadedImage, blurredFaceIds } from '$lib/stores/appState';
 	import { BLUR_STYLES, ERROR_MESSAGES } from '$lib/utils/constants';
 	import { downloadImage } from '$lib/utils/fileHandler';
+	import { applyBlur } from '$lib/utils/imageProcessing';
 
 	let canvasElement: HTMLCanvasElement | null = null;
 
@@ -11,14 +12,24 @@
 	}
 
 	async function handleDownload() {
-		const canvas = document.querySelector('canvas');
-		if (!canvas) {
+		const img = $uploadedImage;
+		const faces = $detectedFaces;
+		const blurred = $blurredFaceIds;
+
+		if (!img || faces.length === 0) {
 			error.set(ERROR_MESSAGES.DOWNLOAD_FAILED);
 			return;
 		}
 
 		try {
-			await downloadImage(canvas);
+			// Create a temporary canvas without overlays for clean download
+			const tempCanvas = document.createElement('canvas');
+			applyBlur(tempCanvas, img, faces, blurred, {
+				style: $blurStyle,
+				intensity: $blurIntensity
+			}, false); // false = no overlays
+
+			await downloadImage(tempCanvas);
 		} catch (err) {
 			console.error('Download error:', err);
 			error.set(ERROR_MESSAGES.DOWNLOAD_FAILED);

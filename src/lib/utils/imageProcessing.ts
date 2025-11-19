@@ -13,7 +13,8 @@ export function applyBlur(
 	image: HTMLImageElement,
 	faces: DetectedFace[],
 	blurredFaceIds: Set<string>,
-	config: BlurConfig
+	config: BlurConfig,
+	showOverlays: boolean = true
 ): void {
 	const ctx = canvas.getContext('2d');
 	if (!ctx) return;
@@ -32,10 +33,12 @@ export function applyBlur(
 		}
 	});
 
-	// 3. Draw overlay borders for visual feedback
-	faces.forEach((face) => {
-		drawFaceOverlay(ctx, face, blurredFaceIds.has(face.id));
-	});
+	// 3. Draw overlay borders for visual feedback (optional)
+	if (showOverlays) {
+		faces.forEach((face) => {
+			drawFaceOverlay(ctx, face, blurredFaceIds.has(face.id));
+		});
+	}
 }
 
 /**
@@ -104,9 +107,32 @@ function applyGaussianBlur(
 	// Clamp between 10px minimum and 200px maximum
 	const blurAmount = Math.max(10, Math.min(faceBasedBlur, 200));
 
+	// To prevent blur clipping at edges, we need to draw the image with padding
+	// The blur spreads beyond the drawn area, so we add extra space
+	const padding = Math.ceil(blurAmount * 0.5); // Half the blur amount as padding
+
+	// Temporarily resize canvas to accommodate blur spread
+	const originalWidth = ctx.canvas.width;
+	const originalHeight = ctx.canvas.height;
+	ctx.canvas.width = w + padding * 2;
+	ctx.canvas.height = h + padding * 2;
+
+	// Draw with blur filter, offset by padding
 	ctx.filter = `blur(${blurAmount}px)`;
-	ctx.drawImage(image, x, y, w, h, 0, 0, w, h);
+	ctx.drawImage(image, x, y, w, h, padding, padding, w, h);
 	ctx.filter = 'none';
+
+	// Extract the center region (without padding) to a new canvas
+	const resultCanvas = document.createElement('canvas');
+	const resultCtx = resultCanvas.getContext('2d')!;
+	resultCanvas.width = w;
+	resultCanvas.height = h;
+	resultCtx.drawImage(ctx.canvas, padding, padding, w, h, 0, 0, w, h);
+
+	// Copy result back to original canvas
+	ctx.canvas.width = originalWidth;
+	ctx.canvas.height = originalHeight;
+	ctx.drawImage(resultCanvas, 0, 0);
 }
 
 /**
@@ -168,9 +194,32 @@ function applyHeavyBlur(
 	// Clamp between 15px minimum and 250px maximum
 	const blurAmount = Math.max(15, Math.min(faceBasedBlur, 250));
 
+	// To prevent blur clipping at edges, we need to draw the image with padding
+	// The blur spreads beyond the drawn area, so we add extra space
+	const padding = Math.ceil(blurAmount * 0.5); // Half the blur amount as padding
+
+	// Temporarily resize canvas to accommodate blur spread
+	const originalWidth = ctx.canvas.width;
+	const originalHeight = ctx.canvas.height;
+	ctx.canvas.width = w + padding * 2;
+	ctx.canvas.height = h + padding * 2;
+
+	// Draw with blur filter and brightness adjustment, offset by padding
 	ctx.filter = `blur(${blurAmount}px) brightness(0.8)`;
-	ctx.drawImage(image, x, y, w, h, 0, 0, w, h);
+	ctx.drawImage(image, x, y, w, h, padding, padding, w, h);
 	ctx.filter = 'none';
+
+	// Extract the center region (without padding) to a new canvas
+	const resultCanvas = document.createElement('canvas');
+	const resultCtx = resultCanvas.getContext('2d')!;
+	resultCanvas.width = w;
+	resultCanvas.height = h;
+	resultCtx.drawImage(ctx.canvas, padding, padding, w, h, 0, 0, w, h);
+
+	// Copy result back to original canvas
+	ctx.canvas.width = originalWidth;
+	ctx.canvas.height = originalHeight;
+	ctx.drawImage(resultCanvas, 0, 0);
 }
 
 /**
