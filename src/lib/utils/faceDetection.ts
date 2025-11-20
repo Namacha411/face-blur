@@ -1,5 +1,7 @@
 /**
  * Face detection using MediaPipe Face Detection
+ * Uses BlazeFace Short-Range model (0-2m range, optimized for selfies)
+ * Note: Full-range models are not yet available in MediaPipe Tasks API
  */
 
 import { FaceDetector, FilesetResolver } from '@mediapipe/tasks-vision';
@@ -18,13 +20,13 @@ export async function initializeFaceDetector(
 ): Promise<FaceDetector> {
 	// Always recreate detector if confidence changes
 	const vision = await FilesetResolver.forVisionTasks(
-		'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm'
+		'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
 	);
 
 	faceDetector = await FaceDetector.createFromOptions(vision, {
 		baseOptions: {
 			modelAssetPath:
-				'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
+				'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/latest/blaze_face_short_range.tflite',
 			delegate: 'GPU'
 		},
 		runningMode: 'IMAGE',
